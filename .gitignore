@@ -42,3 +42,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /target/
+bin/AppiumSupport-1.0.jar
+bin/dependencies/commons-io-1.3.2.jar
+bin/dependencies/xz-1.5.jar
+bin/dependencies/commons-exec-1.3.jar
+bin/dependencies/commons-compress-1.9.jar
