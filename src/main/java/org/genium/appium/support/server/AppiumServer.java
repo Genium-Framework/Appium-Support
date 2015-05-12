@@ -12,19 +12,21 @@
  limitations under the License.*/
 package org.genium.appium.support.server;
 
+import org.genium.server.IMobileServer;
 import org.genium.appium.support.command.CommandManager;
-import org.genium.appium.support.io.IO;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.genium.appium.support.server.arguments.CommonArgs;
+import org.genium.server.ServerArguments;
+import org.genium.server.exception.InvalidServerDirectoryException;
+import org.genium.server.exception.ServerDirectoryNotFoundException;
+import org.genium.server.exception.ServerTimeoutException;
 
 /**
  * An implementation to Appium server which is responsible for all server
@@ -32,39 +34,110 @@ import org.apache.commons.io.IOUtils;
  *
  * @author Hassan Radi
  */
-public class AppiumServer {
+public class AppiumServer implements IMobileServer {
 
-    private static File _serverFolderPath;
+    private final File _absoluteServerDirectory;
+    private final ServerArguments _serverArguments;
+    private final static Logger LOGGER = Logger.getLogger(AppiumServer.class.getName());
 
     /**
-     * Checks whether an Appium server instance is running on the specified
-     * port.
+     * Constructs an Appium server instance. Searches automatically for an
+     * installed Appium server on your machine using the default installation
+     * location according to your operating system.
      *
-     * @param serverPortNumber The port number to check.
-     * @return True if an Appium server is already running on the specified port
-     * number, false otherwise.
+     * @param serverArguments The server arguments to be used when working with
+     * the server.
      */
-    public static boolean isServerRunning(int serverPortNumber) {
-        return isServerRunning(serverPortNumber, true);
+    public AppiumServer(ServerArguments serverArguments) {
+        this._serverArguments = serverArguments;
+
+        // search for installed Appium server
+        _absoluteServerDirectory = searchForServerDirectory();
+    }
+
+    /**
+     * Search the operating system for an Appium server installation directory.
+     *
+     * @return A File representation to the Appium server installation
+     * directory.
+     */
+    private File searchForServerDirectory() {
+        if (OS.isFamilyWindows()) {
+            if (OS.isArch("x86")) {
+                return doesDirectoryExists("C:/Program Files/Appium");
+            } else {
+                // must be the x86_64
+                return doesDirectoryExists("C:/Program Files (x86)/Appium");
+            }
+        } else if (OS.isFamilyMac()) {
+
+        }
+
+        // server directrory was not found.
+        throw new ServerDirectoryNotFoundException();
+    }
+
+    /**
+     * Checks if a certain directory exists or not on your HDD.
+     *
+     * @param directoryString A string representation of the directory you want
+     * to check.
+     * @return File representation of the directory.
+     */
+    private File doesDirectoryExists(String directoryString) {
+        File directory = new File(directoryString);
+        if (directory.exists()) {
+            return directory;
+        } else {
+            throw new ServerDirectoryNotFoundException();
+        }
+    }
+
+    /**
+     * Constructs an Appium server instance. You specify the custom directory to
+     * your Appium server.
+     *
+     * @param absoluteServerDirectory The custom directory to your Appium
+     * server. The directory that contains the "node_modules" directory & the
+     * NodeJS executable.
+     * @param serverArguments The server arguments to be used when working with
+     * the server.
+     */
+    public AppiumServer(File absoluteServerDirectory, ServerArguments serverArguments) {
+        this._absoluteServerDirectory = absoluteServerDirectory;
+        this._serverArguments = serverArguments;
     }
 
     /**
      * Checks whether an Appium server instance is running on the specified
      * port.
      *
-     * @param serverPortNumber The port number to check.
-     * @param silentMode Whether or not to print info messages to the console.
-     * True will activate silent mode and no messages would be printed.
      * @return True if an Appium server is already running on the specified port
      * number, false otherwise.
      */
-    private static boolean isServerRunning(int serverPortNumber, boolean silentMode) {
+    @Override
+    public boolean isServerRunning() {
+        // public exposed function should always log info messages.
+        return isServerRunning(false);
+    }
+
+    /**
+     * Checks whether an Appium server instance is running on the specified
+     * port.
+     *
+     * @param silentMode Whether or not to log info messages. True will activate
+     * silent mode and no messages would be logged.
+     * @return True if an Appium server is already running on the specified port
+     * number, false otherwise.
+     */
+    private boolean isServerRunning(boolean silentMode) {
         String checkServerAliveCommand = null;
         String isServerAliveOutput = null;
 
         try {
             if (OS.isFamilyWindows()) {
-                checkServerAliveCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\"" + serverPortNumber
+                checkServerAliveCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
+                        + _serverArguments.get(CommonArgs.PORT_NUMBER)
                         + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do @echo %a)";
             } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
                 // Using command substitution
@@ -74,23 +147,25 @@ public class AppiumServer {
             }
 
             if (silentMode == false) {
-                System.out.println("Checking to see if a server instance is running with the command: " + checkServerAliveCommand);
+                LOGGER.log(Level.INFO, "Checking to see if a server instance is running with the command: {0}", checkServerAliveCommand);
             }
             isServerAliveOutput = CommandManager.executeCommandUsingJavaRuntime(checkServerAliveCommand, true);
+        } catch (UnsupportedOperationException ex) {
+            throw ex;
         } catch (Exception ex) {
-            System.out.println(getStackTraceAsString(ex));
+            LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
         }
 
         if (isServerAliveOutput == null || isServerAliveOutput.isEmpty() == true) {
             if (silentMode == false) {
-                System.out.println("Server is not running.");
+                LOGGER.log(Level.INFO, "Server is not running.");
             }
             return false;
         } else {
             // try to parse the returning string to an integer
             int processId = Integer.valueOf(isServerAliveOutput);
             if (silentMode == false) {
-                System.out.println("Found a running server instance with PID = " + processId);
+                LOGGER.log(Level.INFO, "Found a running server instance with PID = {0}", processId);
             }
             return true;
         }
@@ -99,15 +174,15 @@ public class AppiumServer {
     /**
      * Stops an already running Appium server. You must provide the correct port
      * number of the server instance that you want to close.
-     *
-     * @param serverPortNumber The port number of the running server instance.
      */
-    public static void stopServer(int serverPortNumber) {
+    @Override
+    public void stopServer() {
         String stopServerCommand = "";
 
         try {
             if (OS.isFamilyWindows()) {
-                stopServerCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\"" + serverPortNumber
+                stopServerCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
+                        + _serverArguments.get(CommonArgs.PORT_NUMBER)
                         + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)";
             } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
                 // Using command substitution
@@ -116,11 +191,13 @@ public class AppiumServer {
                 throw new UnsupportedOperationException("Not supported yet for this operating system...");
             }
 
-            System.out.println("Stopping the server with the command: " + stopServerCommand);
+            LOGGER.log(Level.INFO, "Stopping the server with the command: {0}", stopServerCommand);
             String stopServerOutput = CommandManager.executeCommandUsingJavaRuntime(stopServerCommand, true);
-            System.out.println("Server stopping output: " + stopServerOutput);
+            LOGGER.log(Level.INFO, "Server stopping output: {0}", stopServerOutput);
+        } catch (UnsupportedOperationException ex) {
+            throw ex;
         } catch (Exception ex) {
-            System.out.println(getStackTraceAsString(ex));
+            LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
         }
     }
 
@@ -128,144 +205,49 @@ public class AppiumServer {
      * Start the Appium server with the specified server arguments. The server
      * is started asynchronously, so as not to block the execution. Make sure to
      * pass each server argument as a separate string.
-     *
-     * Here is an example of valid server arguments: String[] args = new String
-     * []{"--address", "127.0.0.1", "--chromedriver-port", "9516",
-     * "--bootstrap-port", "4725", "--selendroid-port", "8082", "--no-reset",
-     * "--local-timezone"}
-     *
-     * @param serverArguments The server arguments to use to initialize the
-     * server instance.
      */
-    public static void startServer(String[] serverArguments) {
+    @Override
+    public void startServer() {
         try {
-            // extract the server files to a temp directory
-            extractServerFilesToTempDirectory();
             String nodeExecutableFilePath = OS.isFamilyWindows()
-                    ? _serverFolderPath + "/node.exe" : _serverFolderPath + "/node/bin/node";
-            String[] AppiumJavaScriptFilePath = new String[]{_serverFolderPath
-                + "/node_modules/appium/bin/appium.js"};
+                    ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node";
+            String appiumJavaScriptFilePath = _absoluteServerDirectory
+                    + "/node_modules/appium/bin/appium.js";
+
+            // make sure that the above files exist
+            if (new File(nodeExecutableFilePath).exists() == false) {
+                throw new InvalidServerDirectoryException(nodeExecutableFilePath);
+            }
+            if (new File(appiumJavaScriptFilePath).exists() == false) {
+                throw new InvalidServerDirectoryException(appiumJavaScriptFilePath);
+            }
 
             // create the command line to be executed
             CommandLine cmdLine = CommandManager.createCommandLine(
-                    nodeExecutableFilePath, AppiumJavaScriptFilePath, serverArguments);
+                    nodeExecutableFilePath, new String[]{appiumJavaScriptFilePath},
+                    _serverArguments.toStringArray());
+            File processOutputError = Files.createTempFile("AppiumServerStreamHandler", ".txt").toFile();
             CommandManager.executeCommandUsingApacheExec(cmdLine,
-                    new FileOutputStream(Files.createTempFile("AppiumServerStreamHandler", ".txt").toFile()));
+                    new FileOutputStream(processOutputError));
 
             /**
-             * add a shutdown hook to clear all the temporary created files
-             * after the end of the execution for this VM
+             * Make sure that the server has started. Check for the server
+             * running in silent mode to prevent showing a lot of info messages
+             * to the user.
              */
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("VM is terminating. Requesting to delete all created temp files...");
-                        FileUtils.deleteDirectory(_serverFolderPath);
-                    } catch (Exception ex) {
-                        System.out.println(getStackTraceAsString(ex));
-                    }
+            long startTime = System.currentTimeMillis();
+            long endTime = startTime + 30000;
+            while (isServerRunning(true) == false) {
+                if (System.currentTimeMillis() > endTime) {
+                    throw new ServerTimeoutException(FileUtils.readFileToString(processOutputError, "UTF8"));
                 }
-            });
+                LOGGER.log(Level.INFO, "Server has not started yet. Trying again in one second...");
+                Thread.sleep(1000);
+            }
+        } catch (ServerTimeoutException ex) {
+            throw ex;
         } catch (Exception ex) {
-            System.out.println(getStackTraceAsString(ex));
+            LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
         }
-    }
-
-    /**
-     * Extract the Appium server files to a temporary directory to be used to
-     * start the server.
-     *
-     * @throws IOException For any exceptions during the input/output
-     * operations.
-     */
-    private static void extractServerFilesToTempDirectory() throws IOException {
-        _serverFolderPath = Files.createTempDirectory("Appium Server ").toFile();
-
-        // extract the node module file and decompress it 
-        extract7ZipCompressedResourceFile("Appium.NodeModules");
-
-        // extract the node compressed file depending on the OS
-        if (OS.isFamilyWindows()) {
-            extract7ZipCompressedResourceFile("Node.Windows");
-        } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
-            extract7ZipCompressedResourceFile("Node.Unix");
-        } else {
-            throw new UnsupportedOperationException("Not supported yet for this operating system...");
-        }
-    }
-
-    /**
-     * Copies a compressed 7z file from the resources, extracts it to the
-     * mentioned directory in a tar format, extract the tar format archive and
-     * then cleans up any unnecessary files.
-     *
-     * @param resourceFileName The name of the resource file to process without
-     * extension.
-     * @throws IOException For any exceptions during the input/output
-     * operations.
-     */
-    private static void extract7ZipCompressedResourceFile(String resourceFileName) throws IOException {
-        File nodeModulesCompressedFile = new File(_serverFolderPath.getAbsoluteFile()
-                + "/" + resourceFileName + ".7z");
-        File tarCompressedFile = new File(_serverFolderPath.getAbsoluteFile()
-                + "/" + resourceFileName + ".tar");
-
-        // copy node modules compressed file to the temporary directory
-        IOUtils.copy(AppiumServer.class.getClassLoader().getResourceAsStream(
-                "appium/server/" + resourceFileName + ".7z"),
-                new FileOutputStream(nodeModulesCompressedFile));
-
-        // extract the node modules compressed file
-        IO.extract7ZipFile(nodeModulesCompressedFile, _serverFolderPath.getAbsolutePath());
-        IO.extractTarFile(tarCompressedFile, _serverFolderPath.getAbsolutePath());
-
-        // delete intermediate compressed files
-        nodeModulesCompressedFile.delete();
-        tarCompressedFile.delete();
-    }
-
-    /**
-     * Converts a stacktrace into a String format to be able to display it to
-     * the user.
-     *
-     * @param throwable the exception object to convert to string.
-     * @return A String representation of a stackTrace.
-     */
-    private static String getStackTraceAsString(Throwable throwable) {
-        try {
-            Writer writer = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(writer);
-            throwable.printStackTrace(printWriter);
-
-            return writer.toString();
-        } catch (Exception ex) {
-            System.out.println("An exception occurred. Message = " + ex.getMessage());
-            return "";
-        }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        System.out.println("Starting server deployment process...");
-        long startTime = System.currentTimeMillis();
-        startServer(new String[]{"--address", "127.0.0.1",
-            "--chromedriver-port", "9516", "--bootstrap-port", "4725",
-            "--selendroid-port", "8082", "--no-reset", "--local-timezone"});
-
-        System.out.println("Server deployed in "
-                + String.valueOf((System.currentTimeMillis() - startTime) / 1000));
-
-        startTime = System.currentTimeMillis();
-        while (isServerRunning(4723) == false) {
-            System.out.println("Server has not started yet. Trying again in one second...");
-            Thread.sleep(1000);
-        }
-        System.out.println("Server has started. Time taken = "
-                + String.valueOf((System.currentTimeMillis() - startTime) / 1000));
-
-        startTime = System.currentTimeMillis();
-        stopServer(4723);
-        System.out.println("Server has been stopped. Time taken = "
-                + String.valueOf((System.currentTimeMillis() - startTime) / 1000));
     }
 }

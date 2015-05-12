@@ -13,9 +13,10 @@
 package org.genium.appium.support.command;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -30,6 +31,8 @@ import org.apache.commons.exec.PumpStreamHandler;
  * @author Hassan Radi
  */
 public class CommandManager {
+
+    private final static Logger LOGGER = Logger.getLogger(CommandManager.class.getName());
 
     public static String executeCommandUsingJavaRuntime(String command, boolean getOutput) {
         String output = "";
@@ -50,7 +53,7 @@ public class CommandManager {
                 }
             }
         } catch (Exception ex) {
-            System.out.println("An exception was thrown while executing the command (" + command + ")");
+            LOGGER.log(Level.SEVERE, "An exception was thrown while executing the command (" + command + ")", ex);
         }
 
         return output;
@@ -62,17 +65,19 @@ public class CommandManager {
      * @param commandLine The command to be executed.
      * @param outputStreamHandler An output stream to dump the process stderr
      * and stdout to it.
-     * @throws java.io.IOException Thrown when trying to reach a file/directory
-     * that doesn't exist.
      */
-    public static void executeCommandUsingApacheExec(CommandLine commandLine, OutputStream outputStreamHandler) throws IOException {
-        DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStreamHandler);
+    public static void executeCommandUsingApacheExec(CommandLine commandLine, OutputStream outputStreamHandler) {
+        try {
+            DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+            PumpStreamHandler streamHandler = new PumpStreamHandler(outputStreamHandler);
 
-        Executor process = new DefaultExecutor();
-        process.setExitValue(0);
-        process.setStreamHandler(streamHandler);
-        process.execute(commandLine, resultHandler);
+            Executor process = new DefaultExecutor();
+            process.setExitValue(0);
+            process.setStreamHandler(streamHandler);
+            process.execute(commandLine, resultHandler);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
+        }
     }
 
     /**
