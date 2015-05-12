@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
-import org.genium.appium.support.server.arguments.CommonArgs;
+import org.genium.appium.support.server.arguments.AppiumCommonArgs;
 import org.genium.server.ServerArguments;
 import org.genium.server.exception.InvalidServerDirectoryException;
 import org.genium.server.exception.ServerDirectoryNotFoundException;
@@ -45,6 +45,10 @@ public class AppiumServer implements IMobileServer {
      * installed Appium server on your machine using the default installation
      * location according to your operating system.
      *
+     * The searched directories are: <br><ul><li>Windows OS: "C:/Program
+     * Files/Appium" & "C:/Program Files (x86)/Appium"</li> <li>Mac OS:
+     * "/Applications/Appium.app/Contents/Resources" </li></ul>
+     *
      * @param serverArguments The server arguments to be used when working with
      * the server.
      */
@@ -63,14 +67,16 @@ public class AppiumServer implements IMobileServer {
      */
     private File searchForServerDirectory() {
         if (OS.isFamilyWindows()) {
-            if (OS.isArch("x86")) {
-                return doesDirectoryExists("C:/Program Files/Appium");
+            if (getArch().equals("32")) {
+                return doesDirectoryExists(System.getenv("ProgramFiles")
+                        + "/Appium");
             } else {
                 // must be the x86_64
-                return doesDirectoryExists("C:/Program Files (x86)/Appium");
+                return doesDirectoryExists(System.getenv("ProgramFiles")
+                        + " (x86)/Appium");
             }
         } else if (OS.isFamilyMac()) {
-
+            return doesDirectoryExists("/Applications/Appium.app/Contents/Resources");
         }
 
         // server directrory was not found.
@@ -137,11 +143,14 @@ public class AppiumServer implements IMobileServer {
         try {
             if (OS.isFamilyWindows()) {
                 checkServerAliveCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
-                        + _serverArguments.get(CommonArgs.PORT_NUMBER)
+                        + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
                         + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do @echo %a)";
-            } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
+            } else if (OS.isFamilyMac()) {
                 // Using command substitution
-                checkServerAliveCommand = "PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID";
+                checkServerAliveCommand = "/bin/sh PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID";
+            } else if (OS.isFamilyUnix()) {
+                // Using command substitution
+                checkServerAliveCommand = "/bin/env PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID";
             } else {
                 throw new UnsupportedOperationException("Not supported yet for this operating system...");
             }
@@ -182,11 +191,14 @@ public class AppiumServer implements IMobileServer {
         try {
             if (OS.isFamilyWindows()) {
                 stopServerCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
-                        + _serverArguments.get(CommonArgs.PORT_NUMBER)
+                        + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
                         + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)";
-            } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
+            } else if (OS.isFamilyMac()) {
                 // Using command substitution
-                stopServerCommand = "PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID";
+                stopServerCommand = "/bin/sh PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID";
+            } else if (OS.isFamilyUnix()) {
+                // Using command substitution
+                stopServerCommand = "/bin/env PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID";
             } else {
                 throw new UnsupportedOperationException("Not supported yet for this operating system...");
             }
@@ -249,5 +261,20 @@ public class AppiumServer implements IMobileServer {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
         }
+    }
+
+    /**
+     * Get the real architecture of the operating system (Not the architecture
+     * of the underlying Java VM).
+     *
+     * @return A string representation of the operating system architecture.
+     */
+    private String getArch() {
+        String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+        String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
+
+        return arch.endsWith("64")
+                || wow64Arch != null && wow64Arch.endsWith("64")
+                        ? "64" : "32";
     }
 }

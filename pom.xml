@@ -1,11 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.genium</groupId>
     <artifactId>AppiumSupport</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    
+    <description>A collection of tools to assist in mobile Automation with Appium</description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/Hassan-Radi/Appium-Support</url>
+        <connection>scm:git:git://github.com/Hassan-Radi/Appium-Support.git</connection>
+        <developerConnection>scm:git:git@github.com:Hassan-Radi/Appium-Support.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>hassan.muhammad1990@gmail.com</email>
+            <name>Hassan Radi</name>
+            <url>https://github.com/Hassan-Radi</url>
+            <id>Hassan-Radi</id>
+        </developer>
+    </developers>
+        
     <!-- Define the minimum version of Maven that is required by this project -->
     <prerequisites>
         <maven>2.2.1</maven>
@@ -37,73 +62,13 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <!-- for creating an executable jar file -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>org.genium.appium.support.server.AppiumServer</mainClass>
-                            <classpathPrefix>dependencies/</classpathPrefix>
-                            <!-- The next two lines are added to force maven to add the title and version details of the
-                            project to the .jar file -->
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <!-- for copying project dependancies to the Output folder location -->
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeGroupIds></includeGroupIds>
-                            <outputDirectory>${basedir}/bin/dependencies/</outputDirectory>
-                        </configuration>
-                    </execution>
-                    
-                    <!-- for copying output .jar file to Output folder location -->
-                    <execution>             
-                        <id>copy-artifact</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${basedir}/bin/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.5</maven.compiler.target>
     </properties>
     <name>Appium Support</name>
     <dependencies>
@@ -111,11 +76,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-exec</artifactId>
             <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

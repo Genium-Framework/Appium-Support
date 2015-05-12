@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.genium.appium.support.server.arguments.CommonArgs;
+import org.genium.appium.support.server.arguments.AppiumCommonArgs;
 
 /**
  * Key/Map representation for server configuration. Must implement the
@@ -26,10 +26,10 @@ import org.genium.appium.support.server.arguments.CommonArgs;
  */
 public class ServerArguments implements Serializable {
 
-    protected HashMap<String, Object> _argumentsMap = new HashMap<>();
+    protected HashMap<String, Object> _argumentsMap = new HashMap<String, Object>();
 
     public ServerArguments() {
-        _argumentsMap.put(CommonArgs.PORT_NUMBER, 4723);
+        _argumentsMap.put(AppiumCommonArgs.PORT_NUMBER, 4723);
     }
 
     /**
@@ -59,7 +59,7 @@ public class ServerArguments implements Serializable {
      * @return A String array representation of the arguments map.
      */
     public String[] toStringArray() {
-        List<String> arguments = new ArrayList<>();
+        List<String> arguments = new ArrayList<String>();
         for (String key : _argumentsMap.keySet()) {
             // only add the key if it is required
             if (_argumentsMap.get(key) instanceof Boolean == false

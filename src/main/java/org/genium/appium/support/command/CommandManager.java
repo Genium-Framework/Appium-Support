@@ -98,7 +98,7 @@ public class CommandManager {
         if (OS.isFamilyWindows()) {
             commanddLine = new CommandLine("\"" + command + "\"");
         } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
-            commanddLine = new CommandLine("'" + command + "'");
+            commanddLine = new CommandLine(command.contains(" ") ? "'" + command + "'" : command);
         } else {
             throw new UnsupportedOperationException("Unsupported operating system.");
         }
@@ -110,7 +110,7 @@ public class CommandManager {
             }
         } else if (OS.isFamilyMac() || OS.isFamilyUnix()) {
             for (String parameter : parameters) {
-                commanddLine.addArgument("'" + parameter + "'", false);
+                commanddLine.addArgument(parameter.contains(" ") ? "'" + parameter + "'" : parameter, false);
             }
         }
 
