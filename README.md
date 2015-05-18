@@ -10,6 +10,8 @@ A set of tools to help in the process of creating automated mobile tests using A
 - Windows 7 x86
 - Windows 7 x64
 
+
 Supported Java 1.5 and above
+
 
 Current Supported Appium Server version: 1.4.0
