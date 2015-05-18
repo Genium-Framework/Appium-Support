@@ -1,6 +1,8 @@
 #Appium Support#
 A set of tools to help in the process of creating automated mobile tests using Appium.
 
+Current Supported Appium Server version: 1.4.0
+
 ##Changelog##
 *1.0*
 - Start a server instance with a set of arguments.
@@ -12,5 +14,3 @@ A set of tools to help in the process of creating automated mobile tests using A
 - Windows 7 x64
 
 Supported Java 1.5 and above
-
-Current Supported Appium Server version: 1.4.0
