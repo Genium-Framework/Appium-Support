@@ -238,9 +238,20 @@ public class AppiumServer implements IMobileServer {
             CommandLine cmdLine = CommandManager.createCommandLine(
                     nodeExecutableFilePath, new String[]{appiumJavaScriptFilePath},
                     _serverArguments.toStringArray());
-            File processOutputError = Files.createTempFile("AppiumServerStreamHandler", ".txt").toFile();
+            final File processOutputError = Files.createTempFile("AppiumServerStreamHandler", ".txt").toFile();
             CommandManager.executeCommandUsingApacheExec(cmdLine,
                     new FileOutputStream(processOutputError));
+
+            /**
+             * Register a shutdown hook to delete the process output error
+             * stream file.
+             */
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    processOutputError.deleteOnExit();
+                }
+            });
 
             /**
              * Make sure that the server has started. Check for the server
