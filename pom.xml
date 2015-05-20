@@ -2,11 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.genium</groupId>
-    <artifactId>AppiumSupport</artifactId>
-    <version>1.0</version>
+    <groupId>com.github.genium-framework</groupId>
+    <artifactId>Appium-Support</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <description>A collection of tools to assist in mobile Automation with Appium</description>
+    <name>Appium Support</name>
+    <description>A set of tools to help in the process of creating automated mobile tests using Appium.</description>
+    <url>https://github.com/Genium-Framework/Appium-Support</url>
 
     <licenses>
         <license>
@@ -17,9 +19,9 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/Hassan-Radi/Appium-Support</url>
-        <connection>scm:git:git://github.com/Hassan-Radi/Appium-Support.git</connection>
-        <developerConnection>scm:git:git@github.com:Hassan-Radi/Appium-Support.git</developerConnection>
+        <url>https://github.com/Genium-Framework/Appium-Support</url>
+        <connection>scm:git:git://github.com/Genium-Framework/Appium-Support.git</connection>
+        <developerConnection>scm:git:git@github.com:Genium-Framework/Appium-Support.git</developerConnection>
     </scm>
 
     <developers>
@@ -28,6 +30,8 @@
             <name>Hassan Radi</name>
             <url>https://github.com/Hassan-Radi</url>
             <id>Hassan-Radi</id>
+            <organization>Genium Testing Framework</organization>
+            <organizationUrl>https://github.com/Genium-Framework</organizationUrl>
         </developer>
     </developers>
         
@@ -62,6 +66,36 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <!-- Generate sources file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Generate Javadoc file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     
@@ -70,7 +104,7 @@
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
     </properties>
-    <name>Appium Support</name>
+	
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>

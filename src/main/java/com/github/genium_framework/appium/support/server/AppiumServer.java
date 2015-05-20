@@ -1,4 +1,4 @@
-/*Copyright 2014 Genium
+/*Copyright 2014 Genium Testing Framework
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -10,10 +10,10 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.*/
-package org.genium.appium.support.server;
+package com.github.genium_framework.appium.support.server;
 
-import org.genium.server.IMobileServer;
-import org.genium.appium.support.command.CommandManager;
+import com.github.genium_framework.server.IMobileServer;
+import com.github.genium_framework.appium.support.command.CommandManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
@@ -22,15 +22,15 @@ import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
-import org.genium.appium.support.server.arguments.AppiumCommonArgs;
-import org.genium.server.ServerArguments;
-import org.genium.server.exception.InvalidServerDirectoryException;
-import org.genium.server.exception.ServerDirectoryNotFoundException;
-import org.genium.server.exception.ServerTimeoutException;
+import com.github.genium_framework.appium.support.server.arguments.AppiumCommonArgs;
+import com.github.genium_framework.server.ServerArguments;
+import com.github.genium_framework.server.exception.InvalidServerDirectoryException;
+import com.github.genium_framework.server.exception.ServerDirectoryNotFoundException;
+import com.github.genium_framework.server.exception.ServerTimeoutException;
 
 /**
  * An implementation to Appium server which is responsible for all server
- * operations including: Start, Stop & Checking if the server is alive.
+ * operations including: Start, Stop &amp; Checking if the server is alive.
  *
  * @author Hassan Radi
  */
@@ -46,8 +46,8 @@ public class AppiumServer implements IMobileServer {
      * location according to your operating system.
      *
      * The searched directories are: <br><ul><li>Windows OS: "C:/Program
-     * Files/Appium" & "C:/Program Files (x86)/Appium"</li> <li>Mac OS:
-     * "/Applications/Appium.app/Contents/Resources" </li></ul>
+     * Files/Appium" &amp; "C:/Program Files (x86)/Appium"</li> <li>Mac OS:
+     * "/Applications/Appium.app/Contents/Resources" </li></ul>zz
      *
      * @param serverArguments The server arguments to be used when working with
      * the server.
@@ -104,8 +104,8 @@ public class AppiumServer implements IMobileServer {
      * your Appium server.
      *
      * @param absoluteServerDirectory The custom directory to your Appium
-     * server. The directory that contains the "node_modules" directory & the
-     * NodeJS executable.
+     * server. The directory that contains the "node_modules" directory &amp;
+     * the NodeJS executable.
      * @param serverArguments The server arguments to be used when working with
      * the server.
      */

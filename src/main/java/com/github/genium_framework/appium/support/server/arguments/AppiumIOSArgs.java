@@ -1,4 +1,4 @@
-/*Copyright 2014 Genium
+/*Copyright 2014 Genium Testing Framework
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -16,7 +16,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.genium.appium.support.server.arguments;
+package com.github.genium_framework.appium.support.server.arguments;
 
 /**
  * Represents all server configurations for Appium - iOS

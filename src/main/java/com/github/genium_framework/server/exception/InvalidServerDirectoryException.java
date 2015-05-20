@@ -1,4 +1,4 @@
-/*Copyright 2014 Genium
+/*Copyright 2014 Genium Testing Framework
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -10,18 +10,18 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.*/
-package org.genium.server.exception;
+package com.github.genium_framework.server.exception;
 
 /**
- * A server exception that is thrown in case the server timeout out while
- * starting.
+ * A server exception that is thrown in case the user provided a wrong server
+ * directory.
  *
  * @author Hassan Radi
  */
-public class ServerTimeoutException extends ServerException {
+public class InvalidServerDirectoryException extends ServerException {
 
-    public ServerTimeoutException(String serverError) {
-        super("The server didn't start after 30 seconds with error:\n"
-                + serverError);
+    public InvalidServerDirectoryException(String providedDirectory) {
+        super("The server directory you provided was not found on your HDD. "
+                + "You provided the following directory: " + providedDirectory);
     }
 }
