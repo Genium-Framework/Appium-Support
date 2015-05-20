@@ -1,6 +1,16 @@
 #Appium Support#
 A set of tools to help in the process of creating automated mobile tests using Appium. Currently only Windows operating system is supported. Mac and Linux support are on the way.
 
+[Dowbload the jar from Maven](https://oss.sonatype.org/content/groups/public/com/github/genium-framework/Appium-Support/1.0.0/Appium-Support-1.0.0.jar) or add the following to your pom.xml:
+
+```
+<dependency>
+  <groupId>com.github.genium-framework</groupId>
+  <artifactId>Appium-Support</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
 Current Supported Appium Server version: 1.4.0
 
 ##Changelog##
