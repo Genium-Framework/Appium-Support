@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.genium_framework.test.server;
+package com.github.genium_framework.appium.support.server;
 
-import com.github.genium_framework.appium.support.server.AppiumServer;
 import com.github.genium_framework.server.ServerArguments;
 import org.junit.After;
 import org.junit.Assert;
