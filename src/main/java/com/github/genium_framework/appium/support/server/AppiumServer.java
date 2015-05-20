@@ -115,11 +115,9 @@ public class AppiumServer implements IMobileServer {
     }
 
     /**
-     * Checks whether an Appium server instance is running on the specified
-     * port.
+     * Checks whether an Appium server instance is running or not.
      *
-     * @return True if an Appium server is already running on the specified port
-     * number, false otherwise.
+     * @return True if an Appium server is already running, false otherwise.
      */
     @Override
     public boolean isServerRunning() {
@@ -128,13 +126,11 @@ public class AppiumServer implements IMobileServer {
     }
 
     /**
-     * Checks whether an Appium server instance is running on the specified
-     * port.
+     * Checks whether an Appium server instance is running or not.
      *
      * @param silentMode Whether or not to log info messages. True will activate
      * silent mode and no messages would be logged.
-     * @return True if an Appium server is already running on the specified port
-     * number, false otherwise.
+     * @return True if an Appium server is already running, false otherwise.
      */
     private boolean isServerRunning(boolean silentMode) {
         String checkServerAliveCommand = null;
@@ -181,8 +177,7 @@ public class AppiumServer implements IMobileServer {
     }
 
     /**
-     * Stops an already running Appium server. You must provide the correct port
-     * number of the server instance that you want to close.
+     * Stops an already running Appium server.
      */
     @Override
     public void stopServer() {
@@ -214,9 +209,9 @@ public class AppiumServer implements IMobileServer {
     }
 
     /**
-     * Start the Appium server with the specified server arguments. The server
-     * is started asynchronously, so as not to block the execution. Make sure to
-     * pass each server argument as a separate string.
+     * Start an Appium server instance. The server is started asynchronously, so
+     * as not to block the execution. By default the function checks to see if
+     * the server has actually started or not (it times out after 30 seconds).
      */
     @Override
     public void startServer() {
