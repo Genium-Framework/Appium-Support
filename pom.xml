@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.genium-framework</groupId>
     <artifactId>Appium-Support</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
     <name>Appium Support</name>
     <description>A set of tools to help in the process of creating automated mobile tests using Appium.</description>

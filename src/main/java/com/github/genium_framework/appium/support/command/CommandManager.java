@@ -34,7 +34,29 @@ public class CommandManager {
 
     private final static Logger LOGGER = Logger.getLogger(CommandManager.class.getName());
 
+    /**
+     * Execute a command on the operating system using Java's built-in Process
+     * class
+     *
+     * @param command A string representation of the command to execute.
+     * @param getOutput Whether or not to get the output/error streams of the
+     * process you forked. This is helpful for debugging reasons.
+     * @return A string representation of output/error streams of the process.
+     */
     public static String executeCommandUsingJavaRuntime(String command, boolean getOutput) {
+        return executeCommandUsingJavaRuntime(new String[]{command}, getOutput);
+    }
+
+    /**
+     * Execute a command on the operating system using Java's built-in Process
+     * class
+     *
+     * @param command A string array representation of the command to execute.
+     * @param getOutput Whether or not to get the output/error streams of the
+     * process you forked. This is helpful for debugging reasons.
+     * @return A string representation of output/error streams of the process.
+     */
+    public static String executeCommandUsingJavaRuntime(String[] command, boolean getOutput) {
         String output = "";
 
         try {
@@ -60,7 +82,9 @@ public class CommandManager {
     }
 
     /**
-     * Execute a command on the operating system.
+     * Execute a command on the operating system using Apache Commons Exec. This
+     * function runs asynchronously and dumps both stderr and stdout streams to
+     * a temp file.
      *
      * @param commandLine The command to be executed.
      * @param outputStreamHandler An output stream to dump the process stderr
@@ -122,5 +146,20 @@ public class CommandManager {
         }
 
         return commanddLine;
+    }
+
+    /**
+     * Get the command in a string form.
+     *
+     * @param command The command represented as a string array.
+     * @return A string representing the command.
+     */
+    public static String convertCommandStringArrayToString(String[] command) {
+        String output = "";
+        for (String com : command) {
+            output += " " + com;
+        }
+
+        return output;
     }
 }

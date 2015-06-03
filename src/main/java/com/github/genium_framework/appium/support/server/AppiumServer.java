@@ -133,26 +133,30 @@ public class AppiumServer implements IMobileServer {
      * @return True if an Appium server is already running, false otherwise.
      */
     private boolean isServerRunning(boolean silentMode) {
-        String checkServerAliveCommand = null;
+        String[] checkServerAliveCommand = null;
         String isServerAliveOutput = null;
 
         try {
             if (OS.isFamilyWindows()) {
-                checkServerAliveCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
-                        + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
-                        + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do @echo %a)";
+                checkServerAliveCommand = new String[]{"cmd", "/c",
+                    "echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
+                    + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
+                    + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do @echo %a)"};
             } else if (OS.isFamilyMac()) {
                 // Using command substitution
-                checkServerAliveCommand = "/bin/sh PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID";
+                checkServerAliveCommand = new String[]{"/bin/sh", "-c",
+                    "lsof -i -P | pgrep node"};
             } else if (OS.isFamilyUnix()) {
                 // Using command substitution
-                checkServerAliveCommand = "/bin/env PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID";
+                checkServerAliveCommand = new String[]{"/bin/env",
+                    "PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID"};
             } else {
                 throw new UnsupportedOperationException("Not supported yet for this operating system...");
             }
 
             if (silentMode == false) {
-                LOGGER.log(Level.INFO, "Checking to see if a server instance is running with the command: {0}", checkServerAliveCommand);
+                LOGGER.log(Level.INFO, "Checking to see if a server instance is running with the command: {0}",
+                        CommandManager.convertCommandStringArrayToString(checkServerAliveCommand));
             }
             isServerAliveOutput = CommandManager.executeCommandUsingJavaRuntime(checkServerAliveCommand, true);
         } catch (UnsupportedOperationException ex) {
@@ -181,24 +185,28 @@ public class AppiumServer implements IMobileServer {
      */
     @Override
     public void stopServer() {
-        String stopServerCommand = "";
+        String[] stopServerCommand = null;
 
         try {
             if (OS.isFamilyWindows()) {
-                stopServerCommand = "cmd /c echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
-                        + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
-                        + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)";
+                stopServerCommand = new String[]{"cmd", "/c",
+                    "echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
+                    + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
+                    + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)"};
             } else if (OS.isFamilyMac()) {
                 // Using command substitution
-                stopServerCommand = "/bin/sh PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID";
+                stopServerCommand = new String[]{"/bin/sh", "-c",
+                    "PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID"};
             } else if (OS.isFamilyUnix()) {
                 // Using command substitution
-                stopServerCommand = "/bin/env PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID";
+                stopServerCommand = new String[]{"/bin/env",
+                    "PID=\"$(lsof -i -P | pgrep -f node)\";kill -9 $PID"};
             } else {
                 throw new UnsupportedOperationException("Not supported yet for this operating system...");
             }
 
-            LOGGER.log(Level.INFO, "Stopping the server with the command: {0}", stopServerCommand);
+            LOGGER.log(Level.INFO, "Stopping the server with the command: {0}",
+                    CommandManager.convertCommandStringArrayToString(stopServerCommand));
             String stopServerOutput = CommandManager.executeCommandUsingJavaRuntime(stopServerCommand, true);
             LOGGER.log(Level.INFO, "Server stopping output: {0}", stopServerOutput);
         } catch (UnsupportedOperationException ex) {
@@ -230,6 +238,7 @@ public class AppiumServer implements IMobileServer {
             }
 
             // create the command line to be executed
+            LOGGER.log(Level.INFO, "Server is starting...");
             CommandLine cmdLine = CommandManager.createCommandLine(
                     nodeExecutableFilePath, new String[]{appiumJavaScriptFilePath},
                     _serverArguments.toStringArray());
