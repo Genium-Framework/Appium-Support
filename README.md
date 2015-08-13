@@ -7,7 +7,7 @@ A set of tools to help in the process of creating automated mobile tests using A
 <dependency>
   <groupId>com.github.genium-framework</groupId>
   <artifactId>Appium-Support</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
