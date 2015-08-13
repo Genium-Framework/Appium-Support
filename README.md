@@ -14,6 +14,10 @@ A set of tools to help in the process of creating automated mobile tests using A
 Current Supported Appium Server version: 1.4.0
 
 ##Changelog##
+*1.0.3*
+- Fixed a bug with server running logic that caused the startServer method to go into an infinite loop.
+- Minor code changes.
+
 *1.0.2*
 - Added support for Mac OS.
 

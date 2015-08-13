@@ -12,9 +12,8 @@
  limitations under the License.*/
 package com.github.genium_framework.appium.support.command;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
@@ -23,6 +22,8 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.OS;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.util.StringUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * A command manager class responsible for creating operating system dependent
@@ -64,15 +65,8 @@ public class CommandManager {
 
             // read the output from the command if requested by the user
             if (getOutput) {
-                BufferedReader stdOutput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String out = null;
-
-                while ((out = stdOutput.readLine()) != null) {
-                    // remove duplicate results
-                    if (out.equals(output) == false) {
-                        output += out;
-                    }
-                }
+                List<String> outErrStr = IOUtils.readLines(p.getInputStream());
+                output = StringUtils.toString(outErrStr.toArray(new String[outErrStr.size()]), "\n");
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "An exception was thrown while executing the command (" + command + ")", ex);
