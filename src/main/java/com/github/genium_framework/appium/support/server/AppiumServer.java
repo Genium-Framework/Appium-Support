@@ -27,6 +27,8 @@ import com.github.genium_framework.server.ServerArguments;
 import com.github.genium_framework.server.exception.InvalidServerDirectoryException;
 import com.github.genium_framework.server.exception.ServerDirectoryNotFoundException;
 import com.github.genium_framework.server.exception.ServerTimeoutException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * An implementation to Appium server which is responsible for all server
@@ -126,58 +128,39 @@ public class AppiumServer implements IMobileServer {
     }
 
     /**
-     * Checks whether an Appium server instance is running or not.
+     * Checks whether an Appium server instance is running or not by sending an
+     * HTTP request to the server asking for status.
      *
      * @param silentMode Whether or not to log info messages. True will activate
      * silent mode and no messages would be logged.
      * @return True if an Appium server is already running, false otherwise.
      */
     private boolean isServerRunning(boolean silentMode) {
-        String[] checkServerAliveCommand = null;
-        String isServerAliveOutput = null;
+        HttpURLConnection openConnection;
 
         try {
-            if (OS.isFamilyWindows()) {
-                checkServerAliveCommand = new String[]{"cmd", "/c",
-                    "echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
-                    + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
-                    + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do @echo %a)"};
-            } else if (OS.isFamilyMac()) {
-                // Using command substitution
-                checkServerAliveCommand = new String[]{"/bin/sh", "-c",
-                    "lsof -i -P | pgrep node"};
-            } else if (OS.isFamilyUnix()) {
-                // Using command substitution
-                checkServerAliveCommand = new String[]{"/bin/env",
-                    "PID=\"$(lsof -i -P | pgrep -f node)\";echo $PID"};
-            } else {
-                throw new UnsupportedOperationException("Not supported yet for this operating system...");
+            if (silentMode == false) {
+                LOGGER.log(Level.INFO, "Checking to see if a server instance is running or not ...");
             }
 
-            if (silentMode == false) {
-                LOGGER.log(Level.INFO, "Checking to see if a server instance is running with the command: {0}",
-                        CommandManager.convertCommandStringArrayToString(checkServerAliveCommand));
-            }
-            isServerAliveOutput = CommandManager.executeCommandUsingJavaRuntime(checkServerAliveCommand, true);
-        } catch (UnsupportedOperationException ex) {
-            throw ex;
+            String serverIPAddress = _serverArguments.get(AppiumCommonArgs.IP_ADDRESS).toString();
+            String serverPortNumber = _serverArguments.get(AppiumCommonArgs.PORT_NUMBER).toString();
+            URL url = new URL("http://" + serverIPAddress + ":"
+                    + serverPortNumber + "/wd/hub/status");
+            openConnection = (HttpURLConnection) url.openConnection();
+            openConnection.connect();
+
+            /**
+             * If the server is up an running it will return a response massage
+             * that says "OK"
+             */
+            return openConnection.getResponseMessage().equalsIgnoreCase("ok");
+        } catch (java.net.ConnectException ex) {
+            return false;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
         }
-
-        if (isServerAliveOutput == null || isServerAliveOutput.isEmpty() == true) {
-            if (silentMode == false) {
-                LOGGER.log(Level.INFO, "Server is not running.");
-            }
-            return false;
-        } else {
-            // try to parse the returning string to an integer
-            int processId = Integer.valueOf(isServerAliveOutput);
-            if (silentMode == false) {
-                LOGGER.log(Level.INFO, "Found a running server instance with PID = {0}", processId);
-            }
-            return true;
-        }
+        return false;
     }
 
     /**
@@ -219,10 +202,24 @@ public class AppiumServer implements IMobileServer {
     /**
      * Start an Appium server instance. The server is started asynchronously, so
      * as not to block the execution. By default the function checks to see if
-     * the server has actually started or not (it times out after 30 seconds).
+     * the server has actually started or not and times out by default after 30
+     * seconds.
      */
-    @Override
     public void startServer() {
+        // pass the default timeout value of 30 seconds
+        this.startServer(30000);
+    }
+
+    /**
+     * Start an Appium server instance. The server is started asynchronously, so
+     * as not to block the execution. By default the function checks to see if
+     * the server has actually started or not.
+     *
+     * @param timeoutInMilliseonds The amount of milliseconds to wait before
+     * declaring that the server failed to start and throw a
+     * ServerTimeoutException.
+     */
+    public void startServer(long timeoutInMilliseonds) {
         try {
             String nodeExecutableFilePath = OS.isFamilyWindows()
                     ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node";
@@ -263,14 +260,17 @@ public class AppiumServer implements IMobileServer {
              * to the user.
              */
             long startTime = System.currentTimeMillis();
-            long endTime = startTime + 30000;
+            long endTime = startTime + timeoutInMilliseonds;
             while (isServerRunning(true) == false) {
                 if (System.currentTimeMillis() > endTime) {
-                    throw new ServerTimeoutException(FileUtils.readFileToString(processOutputError, "UTF8"));
+                    throw new ServerTimeoutException(FileUtils.readFileToString(
+                            processOutputError, "UTF8"), timeoutInMilliseonds);
                 }
                 LOGGER.log(Level.INFO, "Server has not started yet. Trying again in one second...");
                 Thread.sleep(1000);
             }
+
+            LOGGER.log(Level.INFO, "Server has been started successfully.");
         } catch (ServerTimeoutException ex) {
             throw ex;
         } catch (Exception ex) {

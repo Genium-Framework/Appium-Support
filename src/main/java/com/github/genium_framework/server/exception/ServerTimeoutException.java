@@ -20,8 +20,8 @@ package com.github.genium_framework.server.exception;
  */
 public class ServerTimeoutException extends ServerException {
 
-    public ServerTimeoutException(String serverError) {
-        super("The server didn't start after 30 seconds with error:\n"
+    public ServerTimeoutException(String serverError, long timeoutInMilliseonds) {
+        super("The server didn't start after " + timeoutInMilliseonds + " milliseconds with error:\n"
                 + serverError);
     }
 }

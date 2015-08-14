@@ -28,7 +28,12 @@ public class ServerArguments implements Serializable {
 
     protected HashMap<String, Object> _argumentsMap = new HashMap<String, Object>();
 
+    /**
+     * Default constructor that starts a new instance of this class with the
+     * default Appium server values.
+     */
     public ServerArguments() {
+        _argumentsMap.put(AppiumCommonArgs.IP_ADDRESS, "127.0.0.1");
         _argumentsMap.put(AppiumCommonArgs.PORT_NUMBER, 4723);
     }
 

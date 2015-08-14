@@ -14,6 +14,11 @@ A set of tools to help in the process of creating automated mobile tests using A
 Current Supported Appium Server version: 1.4.0
 
 ##Changelog##
+*1.0.4*
+- You can define a custom timeout value for the server while starting it instead of the default 30 seconds.
+- Changed the way to check if the server is running or not by sending an HTTP request and waiting for a response.
+- Minor code changes and bug fixes.
+
 *1.0.3*
 - Fixed a bug with server running logic that caused the startServer method to go into an infinite loop.
 - Minor code changes.
