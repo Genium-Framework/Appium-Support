@@ -7,11 +7,11 @@ A set of tools to help in the process of creating automated mobile tests using A
 <dependency>
   <groupId>com.github.genium-framework</groupId>
   <artifactId>Appium-Support</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
 </dependency>
 ```
 
-Current Supported Appium Server version: 1.4.0
+Current Supported Appium Server version: 1.4.10
 
 ##Changelog##
 *1.0.4*
