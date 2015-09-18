@@ -15,7 +15,7 @@ Current Supported Appium Server version: 1.4.10
 
 ##Changelog##
 *1.0.5*
-- Implemented the ability to provide a custom location to both node executable file and the appium.js file. This is useful in case Appium is installed via npm or if the user wants to have the files in separate locations for any reason.
+- Implemented the ability to provide a custom location to both node executable file and the appium.js file. This is useful in case Appium is installed via npm or if the user wants to run custom versions of Appium and NodeJS together.
 - Added more unit test for Appium custom installations.
 
 *1.0.4*
