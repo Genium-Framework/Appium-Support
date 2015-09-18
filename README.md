@@ -7,13 +7,17 @@ A set of tools to help in the process of creating automated mobile tests using A
 <dependency>
   <groupId>com.github.genium-framework</groupId>
   <artifactId>Appium-Support</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
 </dependency>
 ```
 
 Current Supported Appium Server version: 1.4.10
 
 ##Changelog##
+*1.0.5*
+- Implemented the ability to provide a custom location to both node executable file and the appium.js file. This is useful in case Appium is installed via npm or if the user wants to have the files in separate locations for any reason.
+- Added more unit test for Appium custom installations.
+
 *1.0.4*
 - You can define a custom timeout value for the server while starting it instead of the default 30 seconds.
 - Changed the way to check if the server is running or not by sending an HTTP request and waiting for a response.

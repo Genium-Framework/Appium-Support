@@ -24,7 +24,9 @@ import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
 import com.github.genium_framework.appium.support.server.arguments.AppiumCommonArgs;
 import com.github.genium_framework.server.ServerArguments;
-import com.github.genium_framework.server.exception.InvalidServerDirectoryException;
+import com.github.genium_framework.server.exception.InvalidAppiumJSFilePathException;
+import com.github.genium_framework.server.exception.InvalidNodeFilePathException;
+import com.github.genium_framework.server.exception.InvalidServerFileException;
 import com.github.genium_framework.server.exception.ServerDirectoryNotFoundException;
 import com.github.genium_framework.server.exception.ServerTimeoutException;
 import java.net.HttpURLConnection;
@@ -39,6 +41,8 @@ import java.net.URL;
 public class AppiumServer implements IMobileServer {
 
     private final File _absoluteServerDirectory;
+    private final File _nodeExecutableFilePath;
+    private final File _appiumJavaScriptFilePath;
     private final ServerArguments _serverArguments;
     private final static Logger LOGGER = Logger.getLogger(AppiumServer.class.getName());
 
@@ -59,6 +63,53 @@ public class AppiumServer implements IMobileServer {
 
         // search for installed Appium server
         _absoluteServerDirectory = searchForServerDirectory();
+
+        // make sure to get the node executable file path along with the appium.js path too.
+        _nodeExecutableFilePath = new File(OS.isFamilyWindows()
+                ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node");
+        _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
+                + "/node_modules/appium/bin/appium.js");
+    }
+
+    /**
+     * Constructs an Appium server instance. You specify the custom directory to
+     * your Appium server.
+     *
+     * @param absoluteServerDirectory The custom directory to your Appium
+     * server. The directory that contains the "node_modules" directory &amp;
+     * the NodeJS executable.
+     * @param serverArguments The server arguments to be used when working with
+     * the server.
+     */
+    public AppiumServer(File absoluteServerDirectory, ServerArguments serverArguments) {
+        this._absoluteServerDirectory = absoluteServerDirectory;
+        this._serverArguments = serverArguments;
+
+        // make sure to get the node executable file path along with the appium.js path too.
+        _nodeExecutableFilePath = new File(OS.isFamilyWindows()
+                ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node");
+        _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
+                + "/node_modules/appium/bin/appium.js");
+    }
+
+    /**
+     * Constructs an Appium server instance. This constructor can be used in
+     * case the Appium server is installed via npm or in case the necessary
+     * files to start the server are not in their default locations.
+     *
+     * @param nodeExecutableFilePath The absolute path to the node executable
+     * file and not a shortcut to it.
+     * @param appiumJavaScriptFilePath The absolute path to the appium.js file
+     * and not a shortcut to it.
+     * @param serverArguments The server arguments to be used when working with
+     * the server.
+     */
+    public AppiumServer(File nodeExecutableFilePath, File appiumJavaScriptFilePath,
+            ServerArguments serverArguments) {
+        this._nodeExecutableFilePath = nodeExecutableFilePath;
+        this._appiumJavaScriptFilePath = appiumJavaScriptFilePath;
+        this._serverArguments = serverArguments;
+        this._absoluteServerDirectory = new File("DUMMY_DATA");
     }
 
     /**
@@ -99,21 +150,6 @@ public class AppiumServer implements IMobileServer {
         } else {
             throw new ServerDirectoryNotFoundException();
         }
-    }
-
-    /**
-     * Constructs an Appium server instance. You specify the custom directory to
-     * your Appium server.
-     *
-     * @param absoluteServerDirectory The custom directory to your Appium
-     * server. The directory that contains the "node_modules" directory &amp;
-     * the NodeJS executable.
-     * @param serverArguments The server arguments to be used when working with
-     * the server.
-     */
-    public AppiumServer(File absoluteServerDirectory, ServerArguments serverArguments) {
-        this._absoluteServerDirectory = absoluteServerDirectory;
-        this._serverArguments = serverArguments;
     }
 
     /**
@@ -202,8 +238,7 @@ public class AppiumServer implements IMobileServer {
     /**
      * Start an Appium server instance. The server is started asynchronously, so
      * as not to block the execution. By default the function checks to see if
-     * the server has actually started or not and times out by default after 30
-     * seconds.
+     * the server has actually started or not and times out after 30 seconds.
      */
     public void startServer() {
         // pass the default timeout value of 30 seconds
@@ -221,25 +256,22 @@ public class AppiumServer implements IMobileServer {
      */
     public void startServer(long timeoutInMilliseonds) {
         try {
-            String nodeExecutableFilePath = OS.isFamilyWindows()
-                    ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node";
-            String appiumJavaScriptFilePath = _absoluteServerDirectory
-                    + "/node_modules/appium/bin/appium.js";
-
             // make sure that the above files exist
-            if (new File(nodeExecutableFilePath).exists() == false) {
-                throw new InvalidServerDirectoryException(nodeExecutableFilePath);
+            if (_nodeExecutableFilePath.exists() == false) {
+                throw new InvalidNodeFilePathException(_nodeExecutableFilePath.getAbsolutePath());
             }
-            if (new File(appiumJavaScriptFilePath).exists() == false) {
-                throw new InvalidServerDirectoryException(appiumJavaScriptFilePath);
+            if (_appiumJavaScriptFilePath.exists() == false) {
+                throw new InvalidAppiumJSFilePathException(_appiumJavaScriptFilePath.getAbsolutePath());
             }
 
             // create the command line to be executed
             LOGGER.log(Level.INFO, "Server is starting...");
             CommandLine cmdLine = CommandManager.createCommandLine(
-                    nodeExecutableFilePath, new String[]{appiumJavaScriptFilePath},
+                    _nodeExecutableFilePath.getAbsolutePath(),
+                    new String[]{_appiumJavaScriptFilePath.getAbsolutePath()},
                     _serverArguments.toStringArray());
-            final File processOutputError = Files.createTempFile("AppiumServerStreamHandler", ".txt").toFile();
+            final File processOutputError = Files.createTempFile("AppiumServerStreamHandler",
+                    ".txt").toFile();
             CommandManager.executeCommandUsingApacheExec(cmdLine,
                     new FileOutputStream(processOutputError));
 
@@ -272,6 +304,8 @@ public class AppiumServer implements IMobileServer {
 
             LOGGER.log(Level.INFO, "Server has been started successfully.");
         } catch (ServerTimeoutException ex) {
+            throw ex;
+        } catch (InvalidServerFileException ex) {
             throw ex;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);

@@ -13,15 +13,15 @@
 package com.github.genium_framework.server.exception;
 
 /**
- * A server exception that is thrown in case the user provided a wrong server
- * directory.
+ * A server exception that is thrown in case the user provided a wrong file
+ * path.
  *
  * @author Hassan Radi
  */
-public class InvalidServerDirectoryException extends ServerException {
+public class InvalidServerFileException extends ServerException {
 
-    public InvalidServerDirectoryException(String providedDirectory) {
-        super("The server directory you provided was not found on your HDD. "
-                + "You provided the following directory: " + providedDirectory);
+    public InvalidServerFileException(String providedDirectory) {
+        super("The file you provided was not found on your HDD. "
+                + "You provided the following file path: " + providedDirectory);
     }
 }

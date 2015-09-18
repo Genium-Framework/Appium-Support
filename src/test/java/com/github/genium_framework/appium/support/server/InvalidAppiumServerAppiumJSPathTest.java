@@ -15,18 +15,18 @@
 package com.github.genium_framework.appium.support.server;
 
 import com.github.genium_framework.server.ServerArguments;
-import org.junit.After;
-import org.junit.Assert;
+import com.github.genium_framework.server.exception.InvalidAppiumJSFilePathException;
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * A set of tests to verify that that the Appium server functions are working
- * correctly.
+ * correctly in case the user provided an invalid appium.js file path.
  *
  * @author Hassan Radi
  */
-public class AppiumServerTests {
+public class InvalidAppiumServerAppiumJSPathTest {
 
     AppiumServer _appiumServer;
 
@@ -39,24 +39,13 @@ public class AppiumServerTests {
         serverArguments.setArgument("--no-reset", true);
         serverArguments.setArgument("--local-timezone", false);
 
-        _appiumServer = new AppiumServer(serverArguments);
+        _appiumServer = new AppiumServer(new File("C:/Program Files (x86)/Appium/node.exe"),
+                new File("INVALID_APPIUM_SERVER_INSTALLATION_DIRECTORY"), serverArguments);
+    }
 
+    @Test(expected = InvalidAppiumJSFilePathException.class)
+    public void invalidAppiumNodeFilePath() {
         System.out.println("Starting the Appium server...");
         _appiumServer.startServer();
-    }
-
-    @After
-    public void tearDown() {
-        if (_appiumServer.isServerRunning()) {
-            System.out.println("Stopping the Appium Server...");
-            _appiumServer.stopServer();
-        }
-    }
-
-    @Test
-    public void checkServerIsRunning() {
-        System.out.println("Making sure that the Appium server is running...");
-        final boolean serverRunning = _appiumServer.isServerRunning();
-        Assert.assertTrue("Appium server should be running.", serverRunning);
     }
 }
