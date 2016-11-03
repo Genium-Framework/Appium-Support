@@ -45,6 +45,10 @@ public class AppiumServer implements IMobileServer {
     private final File _appiumJavaScriptFilePath;
     private final ServerArguments _serverArguments;
     private final static Logger LOGGER = Logger.getLogger(AppiumServer.class.getName());
+    private static final String NODE_RELATIVE_PATH_WINDOWS = "/node.exe";
+    private static final String NODE_RELATIVE_PATH_MAC_OS = "/node/bin/node";
+    private static final String APPIUM_FILE_RELATIVE_PATH = "/node_modules/appium/lib/server/main.js";
+    private static final String APPIUM_SERVER_MAC_DEFAULT_DIRECTORY = "/Applications/Appium.app/Contents/Resources";
 
     /**
      * Constructs an Appium server instance. Searches automatically for an
@@ -66,9 +70,10 @@ public class AppiumServer implements IMobileServer {
 
         // make sure to get the node executable file path along with the appium.js path too.
         _nodeExecutableFilePath = new File(OS.isFamilyWindows()
-                ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node");
+                ? _absoluteServerDirectory + NODE_RELATIVE_PATH_WINDOWS
+                : _absoluteServerDirectory + NODE_RELATIVE_PATH_MAC_OS);
         _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
-                + "/node_modules/appium/bin/appium.js");
+                + APPIUM_FILE_RELATIVE_PATH);
     }
 
     /**
@@ -87,9 +92,10 @@ public class AppiumServer implements IMobileServer {
 
         // make sure to get the node executable file path along with the appium.js path too.
         _nodeExecutableFilePath = new File(OS.isFamilyWindows()
-                ? _absoluteServerDirectory + "/node.exe" : _absoluteServerDirectory + "/node/bin/node");
+                ? _absoluteServerDirectory + NODE_RELATIVE_PATH_WINDOWS
+                : _absoluteServerDirectory + NODE_RELATIVE_PATH_MAC_OS);
         _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
-                + "/node_modules/appium/bin/appium.js");
+                + APPIUM_FILE_RELATIVE_PATH);
     }
 
     /**
@@ -129,7 +135,7 @@ public class AppiumServer implements IMobileServer {
                         + " (x86)/Appium");
             }
         } else if (OS.isFamilyMac()) {
-            return doesDirectoryExists("/Applications/Appium.app/Contents/Resources");
+            return doesDirectoryExists(APPIUM_SERVER_MAC_DEFAULT_DIRECTORY);
         }
 
         // server directrory was not found.
@@ -211,7 +217,8 @@ public class AppiumServer implements IMobileServer {
                 stopServerCommand = new String[]{"cmd", "/c",
                     "echo off & FOR /F \"usebackq tokens=5\" %a in (`netstat -nao ^| findstr /R /C:\""
                     + _serverArguments.get(AppiumCommonArgs.PORT_NUMBER)
-                    + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)"};
+                    + " \"`) do (FOR /F \"usebackq\" %b in (`TASKLIST /FI \"PID "
+                    + "eq %a\" ^| findstr /I node.exe`) do taskkill /F /PID %a)"};
             } else if (OS.isFamilyMac()) {
                 // Using command substitution
                 stopServerCommand = new String[]{"/bin/sh", "-c",
@@ -324,6 +331,6 @@ public class AppiumServer implements IMobileServer {
 
         return arch.endsWith("64")
                 || wow64Arch != null && wow64Arch.endsWith("64")
-                        ? "64" : "32";
+                ? "64" : "32";
     }
 }

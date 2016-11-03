@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.*/
 
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -26,33 +26,14 @@ package com.github.genium_framework.appium.support.server.arguments;
 public class AppiumIOSArgs extends AppiumCommonArgs {
 
     /**
-     * IOS only: the relative path of the dir where Localizable.strings file
-     * resides
-     */
-    public static final String LOCALIZABLE_FILE_RELATIVE_PATH = "--localizable-strings-dir";
-    /**
      * (IOS-only) abs path to compiled .ipa file
      */
     public static final String IPA_ABSOLUTE_PATH = "--ipa";
-    /**
-     * @deprecated Trace is now in tmp dir by default and is cleared before each
-     * run. Please also refer to the -–trace-dir flag.
-     */
-    public static final String KEEP_ARTIFACTS = "--keep-artifacts";
     /**
      * (iOS-only) How many times to retry launching Instruments before saying it
      * crashed or timed out
      */
     public static final String RETRIES_WHILE_LAUNCHING_INSTRUMENTS = "--backend-retries"; // also "-r"
-    /**
-     * (iOS-only) how long in ms to wait for Instruments to launch
-     */
-    public static final String TIMEOUT_WHEN_LAUNCHING_INSTRUMENTS = "--launch-timeout"; // also "-lt"
-    /**
-     * (IOS-only) IOS has a weird built-in unavoidable delay. We patch this in
-     * appium. If you do not want it patched, pass in this flag.
-     */
-    public static final String USE_NATIVE_INSTRUMENTS = "--native-instruments-lib";
     /**
      * (IOS-Only) Use the safari app
      */
@@ -71,15 +52,6 @@ public class AppiumIOSArgs extends AppiumCommonArgs {
      */
     public static final String FORCE_USE_IPAD_SIMULATOR = "--force-ipad";
     /**
-     * (IOS-only) calendar format for the iOS simulator
-     */
-    public static final String SIMULATOR_CALENDAR_FORMAT = "--calendar-format";
-    /**
-     * (IOS-only) use LANDSCAPE or PORTRAIT to initialize all requests to this
-     * orientation
-     */
-    public static final String DEVICE_ORIENTATION = "--orientation";
-    /**
      * (IOS-only) .tracetemplate file to use with Instruments
      */
     public static final String TRACE_TEMPLATE_FILE_PATH = "--tracetemplate";
@@ -87,19 +59,6 @@ public class AppiumIOSArgs extends AppiumCommonArgs {
      * (IOS-only) custom path to the instruments commandline tool
      */
     public static final String CUSTOM_INSTRUMENTS_PATH = "--instruments";
-    /**
-     * (IOS-only) if set, the iOS simulator log will be written to the console
-     */
-    public static final String SHOW_SIMULATOR_LOG = "--show-sim-log";
-    /**
-     * (IOS-only) if set, the iOS system log will be written to the console
-     */
-    public static final String SHOW_IOS_LOG = "--show-ios-log";
-    /**
-     * (iOS) Whether to keep keychains (Library/Keychains) when reset app
-     * between sessions
-     */
-    public static final String KEEP_KEYCHAINS_WHEN_RESETING_APP = "--keep-keychains";
     /**
      * Xcode 6 has a bug on some platforms where a certain simulator can only be
      * launched without error if all other simulator devices are first deleted.
@@ -114,4 +73,49 @@ public class AppiumIOSArgs extends AppiumCommonArgs {
      * defaults to /appium-instruments
      */
     public static final String TRACE_DIRECTORY_ABSOLUTE_PATH = "--trace-dir";
+    /**
+     * (IOS-only) Local port used for communication with ios-webkit-debug-proxy
+     */
+    public static final String WEBKIT_DEBUG_PROXY_PORT = "--webkit-debug-proxy-port";
+    /**
+     * @deprecated [DEPRECATED] - no effect, trace is now in tmp dir by default
+     * and is cleared before each run. Please also refer to the –trace-dir flag.
+     */
+    public static final String KEEP_ARTIFACTS = "--keep-artifacts";
+    /**
+     * @deprecated [DEPRECATED] - (iOS-only) how long in ms to wait for
+     * Instruments to launch
+     */
+    public static final String TIMEOUT_WHEN_LAUNCHING_INSTRUMENTS = "--launch-timeout"; // also "-lt"
+    /**
+     * @deprecated [DEPRECATED] - (IOS-only) use LANDSCAPE or PORTRAIT to
+     * initialize all requests to this orientation
+     */
+    public static final String DEVICE_ORIENTATION = "--orientation";
+    /**
+     * @deprecated [DEPRECATED] - (IOS-only) calendar format for the iOS
+     * simulator
+     */
+    public static final String SIMULATOR_CALENDAR_FORMAT = "--calendar-format";
+    /**
+     * @deprecated [DEPRECATED] - (IOS-only) IOS has a weird built-in
+     * unavoidable delay. We patch this in appium. If you do not want it
+     * patched, pass in this flag.
+     */
+    public static final String USE_NATIVE_INSTRUMENTS = "--native-instruments-lib";
+    /**
+     * @deprecated [DEPRECATED] - (iOS-only) Whether to keep keychains
+     * (Library/Keychains) when reset app between sessions
+     */
+    public static final String KEEP_KEYCHAINS_WHEN_RESETING_APP = "--keep-keychains";
+    /**
+     * @deprecated [DEPRECATED] - (IOS-only) the relative path of the dir where
+     * Localizable.strings file resides
+     */
+    public static final String LOCALIZABLE_FILE_RELATIVE_PATH = "--localizable-strings-dir";
+    /**
+     * @deprecated [DEPRECATED] - (IOS-only) if set, the iOS system log will be
+     * written to the console
+     */
+    public static final String SHOW_IOS_LOG = "--show-ios-log";
 }

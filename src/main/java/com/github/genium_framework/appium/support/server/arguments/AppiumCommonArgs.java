@@ -25,15 +25,6 @@ public class AppiumCommonArgs {
      */
     public static final String ENTER_REPL_MODE = "--shell";
     /**
-     * IOS: abs path to simulator-compiled .app file or the bundle_id of the
-     * desired target on device; Android: abs path to .apk file
-     */
-    public static final String APP_ABSOLUTE_PATH = "--app";
-    /**
-     * Unique device identifier of the connected physical device
-     */
-    public static final String UDID = "--udid"; // also "-U"
-    /**
      * IP Address to listen on
      */
     public static final String IP_ADDRESS = "--address"; // also "-a"
@@ -53,17 +44,6 @@ public class AppiumCommonArgs {
      * Enables session override (clobbering)
      */
     public static final String ENABLE_SESSION_OVERRIDE = "--session-override";
-    /**
-     * (iOS) Delete the entire simulator folder. (Android) Reset app state by
-     * uninstalling app instead of clearing app data. On Android, this will also
-     * remove the app after the session is complete.
-     */
-    public static final String ENABLE_FULL_RESET = "--full-reset";
-    /**
-     * Don’t reset app state between sessions (IOS: don’t delete app plist
-     * files; Android: don’t uninstall app before new session)
-     */
-    public static final String ENABLE_NO_RESET = "--no-reset";
     /**
      * Pre-launch the application before allowing the first session (Requires
      * –app and, for Android, –app-pkg and –app-activity)
@@ -94,34 +74,6 @@ public class AppiumCommonArgs {
      */
     public static final String SEND_LOG_OUTPUT_TO_HTTP_LISTENER = "--webhook"; // also "-G"
     /**
-     * Name of the mobile device to use
-     */
-    public static final String DEVICE_NAME_TO_USE = "--device-name";
-    /**
-     * Name of the mobile platform: iOS, Android, or FirefoxOS
-     */
-    public static final String MOBILE_PLATFORM_NAME = "--platform-name";
-    /**
-     * Version of the mobile platform
-     */
-    public static final String MOBILE_PLATFORM_VERSION = "--platform-version";
-    /**
-     * Name of the automation tool: Appium or Selendroid
-     */
-    public static final String AUTOMATION_TOOL_NAME = "--automation-name";
-    /**
-     * Name of the mobile browser: Safari or Chrome
-     */
-    public static final String MOBILE_BROWSER_NAME = "--browser-name";
-    /**
-     * Language for the iOS simulator / Android Emulator
-     */
-    public static final String DEVICE_LANGUAGE = "--language";
-    /**
-     * Locale for the iOS simulator / Android Emulator
-     */
-    public static final String DEVICE_LOCALE = "--locale";
-    /**
      * Configuration JSON file to register Appium with selenium grid
      */
     public static final String SELENIUM_GRID_NODE_CONFIGURATION_FILE = "--nodeconfig";
@@ -150,11 +102,6 @@ public class AppiumCommonArgs {
      */
     public static final String BYPASS_APPIUM_CHECKS = "--no-perms-check";
     /**
-     * The default command timeout for the server to use for all sessions. Will
-     * still be overridden by newCommandTimeout cap
-     */
-    public static final String COMMAND_TIMEOUT = "--command-timeout";
-    /**
      * Cause sessions to fail if desired caps are sent in that Appium does not
      * recognize as valid for the selected device
      */
@@ -169,4 +116,70 @@ public class AppiumCommonArgs {
      * Add exaggerated spacing in logs to help with visual inspection
      */
     public static final String DEBUG_LOG_SPACING = "--debug-log-spacing";
+    /**
+     * Add long stack traces to log entries. Recommended for debugging only.
+     */
+    public static final String ASYNC_TRACE = "--async-trace";
+    /**
+     * @deprecated [DEPRECATED] No effect. This used to be the default command
+     * timeout for the server to use for all sessions (in seconds and should be
+     * less than 2147483). Use newCommandTimeout cap instead
+     */
+    public static final String COMMAND_TIMEOUT = "--command-timeout";
+    /**
+     * @deprecated [DEPRECATED] - Name of the mobile platform: iOS, Android, or
+     * FirefoxOS
+     */
+    public static final String MOBILE_PLATFORM_NAME = "--platform-name";
+    /**
+     * @deprecated [DEPRECATED] - Version of the mobile platform
+     */
+    public static final String MOBILE_PLATFORM_VERSION = "--platform-version";
+    /**
+     * @deprecated [DEPRECATED] - Name of the automation tool: Appium or
+     * Selendroid
+     */
+    public static final String AUTOMATION_TOOL_NAME = "--automation-name";
+    /**
+     * @deprecated [DEPRECATED] - Name of the mobile device to use
+     */
+    public static final String DEVICE_NAME_TO_USE = "--device-name";
+    /**
+     * @deprecated [DEPRECATED] - Name of the mobile browser: Safari or Chrome
+     */
+    public static final String MOBILE_BROWSER_NAME = "--browser-name";
+    /**
+     * @deprecated [DEPRECATED] - IOS: abs path to simulator-compiled .app file
+     * or the bundle_id of the desired target on device; Android: abs path to
+     * .apk file
+     */
+    public static final String APP_ABSOLUTE_PATH = "--app";
+    /**
+     * @deprecated [DEPRECATED] - Language for the iOS simulator / Android
+     * Emulator
+     */
+    public static final String DEVICE_LANGUAGE = "--language";
+    /**
+     * @deprecated [DEPRECATED] - Locale for the iOS simulator / Android
+     * Emulator
+     */
+    public static final String DEVICE_LOCALE = "--locale";
+    /**
+     * @deprecated [DEPRECATED] - Unique device identifier of the connected
+     * physical device
+     */
+    public static final String UDID = "--udid"; // also "-U"
+    /**
+     * @deprecated [DEPRECATED] - Do not reset app state between sessions (IOS:
+     * do not delete app plist files; Android: do not uninstall app before new
+     * session)
+     */
+    public static final String ENABLE_NO_RESET = "--no-reset";
+    /**
+     * @deprecated [DEPRECATED] - (iOS) Delete the entire simulator folder.
+     * (Android) Reset app state by uninstalling app instead of clearing app
+     * data. On Android, this will also remove the app after the session is
+     * complete.
+     */
+    public static final String ENABLE_FULL_RESET = "--full-reset";
 }
