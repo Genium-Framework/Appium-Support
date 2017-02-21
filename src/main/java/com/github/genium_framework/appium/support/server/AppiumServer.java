@@ -16,7 +16,9 @@ import com.github.genium_framework.server.IMobileServer;
 import com.github.genium_framework.appium.support.command.CommandManager;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.ConnectException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.exec.CommandLine;
@@ -43,6 +45,7 @@ public class AppiumServer implements IMobileServer {
     private final File _absoluteServerDirectory;
     private final File _nodeExecutableFilePath;
     private final File _appiumJavaScriptFilePath;
+    private final File _appiumExcecutablePath;
     private final ServerArguments _serverArguments;
     private final static Logger LOGGER = Logger.getLogger(AppiumServer.class.getName());
     private static final String NODE_RELATIVE_PATH_WINDOWS = "/node.exe";
@@ -74,6 +77,7 @@ public class AppiumServer implements IMobileServer {
                 : _absoluteServerDirectory + NODE_RELATIVE_PATH_MAC_OS);
         _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
                 + APPIUM_FILE_RELATIVE_PATH);
+        _appiumExcecutablePath = null;
     }
 
     /**
@@ -96,6 +100,7 @@ public class AppiumServer implements IMobileServer {
                 : _absoluteServerDirectory + NODE_RELATIVE_PATH_MAC_OS);
         _appiumJavaScriptFilePath = new File(_absoluteServerDirectory
                 + APPIUM_FILE_RELATIVE_PATH);
+        _appiumExcecutablePath = null;
     }
 
     /**
@@ -114,6 +119,16 @@ public class AppiumServer implements IMobileServer {
             ServerArguments serverArguments) {
         this._nodeExecutableFilePath = nodeExecutableFilePath;
         this._appiumJavaScriptFilePath = appiumJavaScriptFilePath;
+        this._serverArguments = serverArguments;
+        this._absoluteServerDirectory = new File("DUMMY_DATA");
+        _appiumExcecutablePath = null;
+    }
+
+    public AppiumServer(String appiumExcecutablePath, ServerArguments serverArguments){
+        _appiumExcecutablePath =
+                Paths.get(appiumExcecutablePath.equals("appium")?"/usr/local/appium":appiumExcecutablePath).toFile();
+        this._nodeExecutableFilePath = null;
+        this._appiumJavaScriptFilePath = null;
         this._serverArguments = serverArguments;
         this._absoluteServerDirectory = new File("DUMMY_DATA");
     }
@@ -197,7 +212,7 @@ public class AppiumServer implements IMobileServer {
              * that says "OK"
              */
             return openConnection.getResponseMessage().equalsIgnoreCase("ok");
-        } catch (java.net.ConnectException ex) {
+        } catch (ConnectException ex) {
             return false;
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "An exception was thrown.", ex);
@@ -264,19 +279,26 @@ public class AppiumServer implements IMobileServer {
     public void startServer(long timeoutInMilliseonds) {
         try {
             // make sure that the above files exist
-            if (_nodeExecutableFilePath.exists() == false) {
+            if (_appiumExcecutablePath==null && !_nodeExecutableFilePath.exists()) {
                 throw new InvalidNodeFilePathException(_nodeExecutableFilePath.getAbsolutePath());
             }
-            if (_appiumJavaScriptFilePath.exists() == false) {
+            if (_appiumExcecutablePath==null && !_appiumJavaScriptFilePath.exists()) {
                 throw new InvalidAppiumJSFilePathException(_appiumJavaScriptFilePath.getAbsolutePath());
             }
 
             // create the command line to be executed
             LOGGER.log(Level.INFO, "Server is starting...");
-            CommandLine cmdLine = CommandManager.createCommandLine(
-                    _nodeExecutableFilePath.getAbsolutePath(),
-                    new String[]{_appiumJavaScriptFilePath.getAbsolutePath()},
-                    _serverArguments.toStringArray());
+            CommandLine cmdLine;
+            if (_appiumExcecutablePath==null){
+                cmdLine = CommandManager.createCommandLine(
+                        _nodeExecutableFilePath.getAbsolutePath(),
+                        new String[]{_appiumJavaScriptFilePath.getAbsolutePath()},
+                        _serverArguments.toStringArray());
+            }else {
+                cmdLine = CommandManager.createCommandLine(
+                        _appiumExcecutablePath.getAbsolutePath(),
+                        _serverArguments.toStringArray());
+            }
             final File processOutputError = Files.createTempFile("AppiumServerStreamHandler",
                     ".txt").toFile();
             CommandManager.executeCommandUsingApacheExec(cmdLine,
