@@ -1,4 +1,5 @@
-#Appium Support#
+# Appium Support
+
 A set of tools to help in the process of creating automated mobile tests using Appium. Currently only Windows and Mac operating systems are supported.
 
 [Dowbload the jar from Maven](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.genium-framework%22%20AND%20a%3A%22Appium-Support%22) or add the following to your pom.xml:
@@ -13,7 +14,7 @@ A set of tools to help in the process of creating automated mobile tests using A
 
 Current Supported Appium Server version: 1.4.10
 
-##Changelog##
+## Changelog
 *1.0.5*
 - Implemented the ability to provide a custom location to both node executable file and the appium.js file. This is useful in case Appium is installed via npm or if the user wants to run custom versions of Appium and NodeJS together.
 - Added more unit test for Appium custom installations.
@@ -39,7 +40,7 @@ Current Supported Appium Server version: 1.4.10
 - Stop an already running server instance.
 - Check if a server instance is running or not.
 
-######Tested on environments######
+###### Tested on environments
 - Windows 7 x86
 - Windows 7 x64
 - Mac OSX 10.9
