@@ -12,7 +12,7 @@ A set of tools to help in the process of creating automated mobile tests using A
 </dependency>
 ```
 
-Current Supported Appium Server version: 1.4.10
+Current Supported Appium Server version: 1.6.0-beta3
 
 ## Changelog
 *1.0.5*
